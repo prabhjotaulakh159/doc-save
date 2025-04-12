@@ -7,9 +7,24 @@ import (
 	"os/signal"
 	"syscall"
 	"context"
+	"github.com/prabhjotaulakh159/doc-save/db"
 )
 
 func main() {
+	mongoClient, err := db.GetMongoClient()
+	if err != nil {
+		log.Fatalf("error getting db conn, %v", err)	
+	}
+	
+	log.Println("connected to database")	
+	
+	defer func() {
+		if err = mongoClient.Disconnect(context.TODO()); err != nil {
+			log.Fatalf("error disconnecting db conn, %v", err)	
+		}
+		log.Println("db conn closed")
+	}()
+	
 	handler := http.NewServeMux()
 	server := &http.Server {
 		Addr: "localhost:8000", 
