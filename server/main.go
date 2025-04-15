@@ -9,6 +9,8 @@ import (
 	"context"
 	"github.com/prabhjotaulakh159/doc-save/db"
 	"github.com/prabhjotaulakh159/doc-save/controllers"
+	"github.com/prabhjotaulakh159/doc-save/repositories"
+	"github.com/prabhjotaulakh159/doc-save/services"
 )
 
 func main() {
@@ -25,11 +27,14 @@ func main() {
 		}
 		log.Println("db conn closed")
 	}()
-
-	userController := &controllers.CrudUserController{}	
+	
+	userRepository := &repositories.CrudUserRepository{Collection: mongoClient.Database("doc-save", nil).Collection("doc-save", nil)}
+	userService := &services.CrudUserService{UserRepository: userRepository}
+	userController := &controllers.CrudUserController{UserService: userService}	
 	
 	handler := http.NewServeMux()
 	handler.HandleFunc("POST /api/user/create", userController.CreateNewUser)
+	
 	server := &http.Server {
 		Addr: "localhost:8000", 
 		Handler: handler,
