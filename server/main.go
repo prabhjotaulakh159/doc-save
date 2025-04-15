@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"context"
 	"github.com/prabhjotaulakh159/doc-save/db"
+	"github.com/prabhjotaulakh159/doc-save/controllers"
 )
 
 func main() {
@@ -24,8 +25,11 @@ func main() {
 		}
 		log.Println("db conn closed")
 	}()
+
+	userController := &controllers.CrudUserController{}	
 	
 	handler := http.NewServeMux()
+	handler.HandleFunc("POST /api/user/create", userController.CreateNewUser)
 	server := &http.Server {
 		Addr: "localhost:8000", 
 		Handler: handler,
