@@ -11,7 +11,8 @@ type UserService interface {
 }
 
 type CrudUserService struct {
-	UserRepository repositories.UserRepository 
+	UserRepository repositories.UserRepository
+	EncryptionService EncryptionService
 }
 
 func (c *CrudUserService) CreateNewUser(username string, password string) error {
@@ -31,7 +32,7 @@ func (c *CrudUserService) CreateNewUser(username string, password string) error 
 	
 	usernameTaken, err := c.UserRepository.CheckIfUserExists(_username)
 	if err != nil {
-		return &types.DbError{
+		return &types.ServerError{
 			Message: "error in checking if username is already taken",
 			InternalError: err,		
 		}	
@@ -43,8 +44,16 @@ func (c *CrudUserService) CreateNewUser(username string, password string) error 
 		}	
 	}
 	
-	if err := c.UserRepository.CreateNewUser(_username, _password); err != nil{
-		return &types.DbError{
+	encryptedPassword, err := c.EncryptionService.EncryptPassword(_password)
+	if err != nil {
+		return &types.ServerError{
+			Message: "error securing user credentials",
+			InternalError: err,	
+		}
+	}
+	
+	if err := c.UserRepository.CreateNewUser(_username, encryptedPassword); err != nil{
+		return &types.ServerError{
 			Message: "error creating a new user",
 			InternalError: err,	
 		}

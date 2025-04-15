@@ -1,6 +1,6 @@
 package types
 
-type DbError struct {
+type ServerError struct {
 	Message string
 	InternalError error
 }
@@ -9,8 +9,8 @@ type ValidationError struct {
 	Message string
 }
 
-func (d *DbError) Error() string {
-	return d.Message
+func (s *ServerError) Error() string {
+	return s.Message
 }
 
 func (v *ValidationError) Error() string {

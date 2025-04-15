@@ -27,9 +27,14 @@ func main() {
 		}
 		log.Println("db conn closed")
 	}()
+
+	encryptionService := &services.BcryptEncryptionService{}	
 	
 	userRepository := &repositories.CrudUserRepository{Collection: mongoClient.Database("doc-save", nil).Collection("doc-save", nil)}
-	userService := &services.CrudUserService{UserRepository: userRepository}
+	userService := &services.CrudUserService{
+		UserRepository: userRepository,
+		EncryptionService: encryptionService,
+	}
 	userController := &controllers.CrudUserController{UserService: userService}	
 	
 	handler := http.NewServeMux()

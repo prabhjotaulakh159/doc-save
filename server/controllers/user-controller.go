@@ -33,14 +33,14 @@ func (c *CrudUserController) CreateNewUser(w http.ResponseWriter, r *http.Reques
    }
 	if err := c.UserService.CreateNewUser(req.Username, req.Password); err != nil {
 		var vError *types.ValidationError
-		var dError *types.DbError
+		var sError *types.ServerError
 		if (errors.As(err, &vError)) {
 			http.Error(w, vError.Message, http.StatusBadRequest)	
 			return	
 		} 	
-		if (errors.As(err, &dError)) {
-			log.Println(err)
-			http.Error(w, dError.Message, http.StatusInternalServerError)
+		if (errors.As(err, &sError)) {
+			log.Println(sError.InternalError)
+			http.Error(w, sError.Message, http.StatusInternalServerError)
 			return		
 		}
 		log.Println(err)
