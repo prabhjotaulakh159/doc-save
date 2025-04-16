@@ -39,6 +39,7 @@ func main() {
 	
 	handler := http.NewServeMux()
 	handler.HandleFunc("POST /api/user/create", userController.CreateNewUser)
+	handler.HandleFunc("POST /api/user/authenticate", userController.AuthenticateUser)
 	
 	server := &http.Server {
 		Addr: "localhost:8000", 

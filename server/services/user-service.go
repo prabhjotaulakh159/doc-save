@@ -3,11 +3,13 @@ package services
 import (
 	"github.com/prabhjotaulakh159/doc-save/repositories"
 	"github.com/prabhjotaulakh159/doc-save/types"
+	"github.com/prabhjotaulakh159/doc-save/models"
 	"strings"
 )
 
 type UserService interface {
 	CreateNewUser(username string, password string) error
+	AuthenticateUser(username string, password string) (*models.UserModel, error)
 }
 
 type CrudUserService struct {
@@ -60,4 +62,25 @@ func (c *CrudUserService) CreateNewUser(username string, password string) error 
 	} 
 	
 	return nil	
+}
+
+func (c *CrudUserService) AuthenticateUser(username string, password string) (*models.UserModel, error) {
+	user, err := c.UserRepository.GetUserByUsername(username)
+	
+	if err != nil {
+		return nil, &types.ServerError{
+			Message: "error authenticating user",
+			InternalError: err,		
+		}	
+	}
+	
+	if user == nil {
+		return nil, &types.ValidationError{Message: "invalid credentials"}	
+	}
+	
+	if err := c.EncryptionService.ValidatePassword(user.Password, password); err != nil {
+		return nil, &types.ValidationError{Message: "invalid credentials"}
+	}
+	
+	return user, nil	
 }
