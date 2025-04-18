@@ -21,6 +21,7 @@ type UserController interface {
 
 type CrudUserController struct{
 	UserService services.UserService
+	TokenService services.TokenService
 }
 
 func (c *CrudUserController) CreateNewUser(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +60,12 @@ func (c *CrudUserController) AuthenticateUser(w http.ResponseWriter, r *http.Req
 		return
 	}
 	
-	if err := json.NewEncoder(w).Encode(user); err != nil {
+	jwtToken, err := c.TokenService.GenerateToken(user.Username)
+	if err != nil {
+		HandleError(w, err)	
+	} 
+	
+	if err := json.NewEncoder(w).Encode(jwtToken); err != nil {
 		HandleError(w, err)	
 	}
 	
